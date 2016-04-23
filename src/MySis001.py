@@ -32,11 +32,12 @@ TAG_EXCLUDE = ["版务"];
 #地址与数据库表映射
 #TBName->URL
 URL_MAP = {
-    "original":"http://www.sis001.com/forum/forum-143-{0}.htm",
+    "original":"http://www.sis001.com/forum/forum-143-{0}.html",
     "reprint":"http://www.sis001.com/forum/forum-25-{0}.html",
     "c_original":"http://sis001.com/forum/forum-230-{0}.html",
     "c_reprint":"http://sis001.com/forum/forum-58-{0}.html"
 };
+HOST_URL = "http://www.sis001.com"
 
 headers = {
     "Referer":"http://www.sis001.com/forum/index.php",
@@ -168,8 +169,13 @@ def createConnection():
             print("Connect to mysql failed, exception:{0}".format(str(e)));
             time.sleep(15);
     return conn, cursor;
-    
+
+def beforeFetch():
+    req = requests.get(HOST_URL, headers = headers);
+    req.encoding = "gbk";
+
 def fetchOutSide(start, end):
+    beforeFetch();
     for i in range(start, end):
         for tbName in URL_MAP.keys():
             pool.addTask(fetch, tbName, URL_MAP[tbName].format(i));
@@ -179,7 +185,7 @@ def fetchOutSide(start, end):
     
 def main():
     start = 1;
-    end = 2;
+    end = 4;
     if(len(sys.argv) == 3):
         print("Got args, start = {0}, end = {1}".format(sys.argv[1], sys.argv[2]));
         try:
